@@ -1,2 +1,10 @@
-﻿  main.cpp
+﻿  Tile.cpp
+  main.cpp
+C:\Users\DanGo\source\repos\SDL\SDL\main.cpp(10,1): warning C4005: WIDTH_IMG: изменение макроопределения
+C:\Users\DanGo\source\repos\SDL\SDL\Tile.h(11): message : см. предыдущее определение "WIDTH_IMG"
+C:\Users\DanGo\source\repos\SDL\SDL\main.cpp(14,1): warning C4005: MARGIN_LEFT: изменение макроопределения
+C:\Users\DanGo\source\repos\SDL\SDL\Tile.h(14): message : см. предыдущее определение "MARGIN_LEFT"
+C:\Users\DanGo\source\repos\SDL\SDL\main.cpp(15,1): warning C4005: MARGIN_TOP: изменение макроопределения
+C:\Users\DanGo\source\repos\SDL\SDL\Tile.h(15): message : см. предыдущее определение "MARGIN_TOP"
+  Создание кода...
   SDL.vcxproj -> C:\Users\DanGo\source\repos\SDL\x64\Debug\SDL.exe
