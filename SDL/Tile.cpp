@@ -23,7 +23,8 @@ Tile::Tile()
 	T_IMG_3 = nullptr;
 	T_IMG_4 = nullptr;
 	cells_x = 0;
-	cells_y = 0;
+	cells_y = 0; 
+	choose_image = -1;
 	col = { 255,50,40,0 };
 	cursor_x = -1;
 	cursor_y = -1;
@@ -197,8 +198,32 @@ void Tile::Button_Click(int x, int y)
 
 void Tile::Button_Mov(int x, int y)
 {
-	if (Game_State == choose_cells)
+	switch (Game_State)
 	{
+	case choose_img:
+		if ((x > 200) && (x < 600) && (y > 125) && (y < 350) && (T_IMG_1 != nullptr))
+		{
+			choose_image = 0;
+			break;
+		}
+		if ((x > 1000) && (x < 1400) && (y > 125) && (y < 350) && (T_IMG_2 != nullptr))
+		{
+			choose_image = 1;
+			break;
+		}
+		if ((x > 200) && (x < 600) && (y > 500) && (y < 725) && (T_IMG_3 != nullptr))
+		{
+			choose_image = 2;
+			break;
+		}
+		if ((x > 1000) && (x < 1400) && (y > 500) && (y < 725) && (T_IMG_4 != nullptr))
+		{
+			choose_image = 3;
+			break;
+		}
+		choose_image = -1;
+		break;
+	case choose_cells:
 		if ((x > 550) && (x < 1060) && (y > 200) && (y < 710))
 		{
 			cells_x = (x - 550) / 50;
@@ -209,6 +234,9 @@ void Tile::Button_Mov(int x, int y)
 			cells_x = -1;
 			cells_y = -1;
 		}
+		break;
+	default:
+		break;
 	}
 	return;
 }
@@ -252,17 +280,24 @@ bool Tile::check_tile()
 
 void Tile::Draw_Start()
 {
-	SDL_Rect rect_img_1 = { 200, 125, 400, 225 };
-	SDL_Rect rect_img_2 = { 1000, 125, 400, 225 };
-	SDL_Rect rect_img_3 = { 200, 500, 400, 225 };
-	SDL_Rect rect_img_4 = { 1000, 500, 400, 225 };
 
+	SDL_Rect rect_img[4] = { { 200, 125, 400, 225 },
+							{ 1000, 125, 400, 225 },
+							{ 200, 550, 400, 225 },
+							{ 1000, 550, 400, 225 } };
+	if (choose_image > -1)
+	{
+		rect_img[choose_image].x -= 50;
+		rect_img[choose_image].y -= 50;
+		rect_img[choose_image].h += 100;
+		rect_img[choose_image].w += 100;
+	}
 
 	SDL_RenderCopy(renderer, background, NULL, &window_rect);
-	SDL_RenderCopy(renderer, T_IMG_1, NULL, &rect_img_1);
-	SDL_RenderCopy(renderer, T_IMG_2, NULL, &rect_img_2);
-	SDL_RenderCopy(renderer, T_IMG_3, NULL, &rect_img_3);
-	SDL_RenderCopy(renderer, T_IMG_4, NULL, &rect_img_4);
+	SDL_RenderCopy(renderer, T_IMG_1, NULL, &rect_img[0]);
+	SDL_RenderCopy(renderer, T_IMG_2, NULL, &rect_img[1]);
+	SDL_RenderCopy(renderer, T_IMG_3, NULL, &rect_img[2]);
+	SDL_RenderCopy(renderer, T_IMG_4, NULL, &rect_img[3]);
 
 	string str = "Choose image";
 	TTF_Font* font = TTF_OpenFont("19440.ttf", 100);
@@ -286,7 +321,6 @@ void Tile::Draw_Cels()
 	{
 		for (int j = 0; j < MAX_CELLS; j++)
 		{
-			//SDL_Rect rect = { MARGIN_LEFT + i * width / clipPerRow, MARGIN_TOP + j * height / clipPerColumn, width / clipPerRow, height / clipPerColumn };
 			SDL_Rect rect = { 545 + i * 51, 190 + j * 51, 50, 50 };
 			if ((i <= cells_x) && (j <= cells_y))
 				SDL_SetRenderDrawColor(renderer, 50, 255, 40, 0xFF);
@@ -311,18 +345,25 @@ void Tile::Draw_Cels()
 void Tile::Draw_Game()
 {
 	SDL_Rect icon_rect = { WIDTH - MARGIN_LEFT - WIDTH_ICON, MARGIN_TOP, WIDTH_ICON, HEIGTH_ICON };
+	SDL_Rect back_rect = { MARGIN_LEFT, MARGIN_TOP, WIDTH_IMG, HEIGTH_IMG };
+	SDL_SetRenderDrawColor(renderer, 100, 100, 100, 0);
+	SDL_RenderFillRect(renderer, &back_rect);
 	SDL_RenderCopy(renderer, Target_IMG, NULL, &icon_rect);
+
 	for (int i = 0; i < cells_x; i++)
 	{
 		for (int j = 0; j < cells_y; j++)
 		{
 			SDL_Rect rect = { MARGIN_LEFT + i * (WIDTH_IMG / cells_x), MARGIN_TOP + j * (HEIGTH_IMG / cells_y), WIDTH_IMG / cells_x, HEIGTH_IMG / cells_y };
+			if ((i == cursor_x) && (j == cursor_y))
+			{
+				rect.x += WIDTH_IMG / cells_x / 20;
+				rect.y += HEIGTH_IMG / cells_y / 20;
+				rect.w -= WIDTH_IMG / cells_x / 10;
+				rect.h -= HEIGTH_IMG / cells_y / 10;
+			}
 			SDL_RenderCopy(renderer, clip[i][j], NULL, &rect);
 		}
 	}
 }
 
-SDL_Renderer* Tile::Get_renderer()
-{
-	return renderer;
-}

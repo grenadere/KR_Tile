@@ -53,6 +53,7 @@ private:
 	SDL_Texture* T_IMG_2;
 	SDL_Texture* T_IMG_3;
 	SDL_Texture* T_IMG_4;
+	int choose_image;
 	int cells_x;
 	int cells_y;
 	int cursor_x;
@@ -69,6 +70,5 @@ public:
 	void Draw();
 	void swap_clip(int x1, int y1, int x2, int y2);
 	bool check_tile();
-	SDL_Renderer* Get_renderer();
 };
 #endif
