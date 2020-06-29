@@ -3,16 +3,20 @@
 #include <SDL_ttf.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <ctime>
 #include <iostream>
 
 #define WIDTH 1600
 #define HEIGTH 900
 
-#define WIDTH_IMG 1366
-#define HEIGTH_IMG 720
+#define WIDTH_IMG 1024
+#define HEIGTH_IMG 600
 
-#define MARGIN_LEFT 10
-#define MARGIN_TOP 10
+#define WIDTH_ICON 432
+#define HEIGTH_ICON 240
+
+#define MARGIN_LEFT 50
+#define MARGIN_TOP 150
 
 #define MAX_CELLS 10
 
@@ -32,18 +36,13 @@ class Tile
 {
 private:
 	State Game_State;
-	SDL_Window* window{ nullptr };
+	SDL_Window* window;
 	SDL_Color col;
-	SDL_Rect dest;
 	SDL_Rect window_rect;
 	SDL_Renderer* renderer;
-	SDL_Texture* background = nullptr;
-	int cells_x;
-	int cells_y;
+	SDL_Texture* background;
 	SDL_Texture*** clip;
 	SDL_Texture*** clip_for_check;
-	//SDL_Texture* clip[MAX_CELLS][MAX_CELLS];
-	//SDL_Texture* clip_for_check[MAX_CELLS][MAX_CELLS];
 	SDL_Surface* Surf_Target_IMG;
 	SDL_Surface* IMG_1;
 	SDL_Surface* IMG_2;
@@ -54,6 +53,10 @@ private:
 	SDL_Texture* T_IMG_2;
 	SDL_Texture* T_IMG_3;
 	SDL_Texture* T_IMG_4;
+	int cells_x;
+	int cells_y;
+	int cursor_x;
+	int cursor_y;
 	void Draw_Start();
 	void Draw_Cels();
 	void Draw_Game();
@@ -64,6 +67,8 @@ public:
 	void Button_Click(int x, int y);
 	void Button_Mov(int x, int y);
 	void Draw();
+	void swap_clip(int x1, int y1, int x2, int y2);
+	bool check_tile();
 	SDL_Renderer* Get_renderer();
 };
 #endif

@@ -1,2 +1,3 @@
 ﻿  Tile.cpp
+C:\Users\DanGo\source\repos\SDL\SDL\Tile.cpp(164,13): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
   SDL.vcxproj -> C:\Users\DanGo\source\repos\SDL\x64\Debug\SDL.exe
