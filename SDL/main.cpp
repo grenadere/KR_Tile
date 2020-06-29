@@ -1,18 +1,7 @@
-#include <iostream>
-#include <SDL.h>
-#undef main
-#include <SDL_image.h>
+
 #include "Tile.h"
 
-#define WIDTH 1600
-#define HEIGHT 900
 
-#define WIDTH_IMG 1366
-#define HEIGHT_IMG 720
-
-
-#define MARGIN_LEFT 0
-#define MARGIN_TOP 0
 
 
 
@@ -85,8 +74,12 @@ int SDL_main(int argc, char* argv[])
 			switch (e.type)
 			{
 			case SDL_MOUSEBUTTONDOWN:
-				Game.Button(e.motion.x, e.motion.x);
+				Game.Button_Click(e.motion.x, e.motion.y);
 				break;
+			case SDL_MOUSEMOTION:
+				Game.Button_Mov(e.motion.x, e.motion.y);
+				break;
+
 			case SDL_KEYUP:
 				if (e.key.keysym.sym == SDLK_ESCAPE)
 					quit = true;
@@ -95,9 +88,9 @@ int SDL_main(int argc, char* argv[])
 					quit = true;
 					break;
 			}
+			Game.Draw();
 		}
 		
-		//SDL_RenderPresent(renderer);
 	}
 	return 0;
 }
