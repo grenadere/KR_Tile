@@ -2,6 +2,7 @@
 
 Tile::Tile()
 {
+	TTF_Init();
 	Game_State = choose_img;
 	window_rect.x = 0;
 	window_rect.y = 0;
@@ -25,7 +26,7 @@ Tile::Tile()
 	cells_x = 0;
 	cells_y = 0; 
 	choose_image = -1;
-	col = { 255,50,40,0 };
+	color_text = { 255,140,0,0 };
 	cursor_x = -1;
 	cursor_y = -1;
 	init();
@@ -53,6 +54,7 @@ Tile::~Tile()
 	SDL_DestroyTexture(T_IMG_4);
 	SDL_DestroyTexture(background);
 	SDL_DestroyWindow(window);
+	TTF_Quit();
 }
 
 void Tile::init()
@@ -60,29 +62,30 @@ void Tile::init()
 	window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGTH, SDL_WINDOW_SHOWN);
 	if (window == nullptr)
 	{
-		cout << "SDL_CreateWindow Error:" << SDL_GetError() << endl;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_CreateWindow Error", SDL_GetError(), window);
+		exit(1);
 	}
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (renderer == nullptr) {
-		std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+	if (renderer == nullptr)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SDL_CreateRenderer Error", SDL_GetError(), window);
+		exit(1);
 	}
-
 	SDL_RenderClear(renderer);
-	TTF_Init();
 	SDL_Surface* bk_surf = IMG_Load("background.jpg");
-	IMG_1 = IMG_Load("img11.jpg");
+	IMG_1 = IMG_Load("img1.jpg");
 	IMG_2 = IMG_Load("img2.jpg");
 	IMG_3 = IMG_Load("img3.jpg");
 	IMG_4 = IMG_Load("img4.jpg");
 	if (bk_surf == nullptr)
 	{
-		cout << "SDL_CreateWindow Error:" << SDL_GetError() << endl;
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG Error", "Background not found", window);
+		exit(1);
 	}
 	if ((IMG_1 == nullptr) && (IMG_2 == nullptr) && (IMG_3 == nullptr) && (IMG_4 == nullptr))
 	{
-		cout << "SDL_CreateWindow Error:" << SDL_GetError() << endl;
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "IMG Error", "No image", window);
+		exit(1);
 	}
 	background = SDL_CreateTextureFromSurface(renderer, bk_surf);
 	if(IMG_1 != nullptr)
@@ -141,12 +144,20 @@ void Tile::Button_Click(int x, int y)
 		texture = SDL_CreateTextureFromSurface(renderer, Surf_Target_IMG);
 		cells_x++;
 		cells_y++;
-		clip = new SDL_Texture * *[cells_x];
-		clip_for_check = new SDL_Texture * *[cells_x];
-		for (int i = 0; i < cells_x; i++)
+		try
 		{
-			clip[i] = new SDL_Texture * [cells_y];
-			clip_for_check[i] = new SDL_Texture * [cells_y];
+			clip = new SDL_Texture * *[cells_x];
+			clip_for_check = new SDL_Texture * *[cells_x];
+			for (int i = 0; i < cells_x; i++)
+			{
+				clip[i] = new SDL_Texture * [cells_y];
+				clip_for_check[i] = new SDL_Texture * [cells_y];
+			}
+		}
+		catch (std::bad_alloc)
+		{
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "RAM Error", "Not enough RAM", window);
+			exit(1);
 		}
 		Back = SDL_GetRenderTarget(renderer);
 		for (int i = 0; i < cells_x; i++)
@@ -188,9 +199,13 @@ void Tile::Button_Click(int x, int y)
 			cursor_x = -1;
 			cursor_y = -1;
 		}
-		if(!check_tile())
-			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Win", "complited", window);
+		if (!check_tile())
+			Game_State = win;
 		break;
+	case win:
+		if ((x > WIDTH - MARGIN_LEFT - WIDTH_ICON) && (x < WIDTH - MARGIN_LEFT) &&
+			(y > MARGIN_TOP + HEIGTH_IMG - HEIGTH_ICON / 2) && (y < MARGIN_TOP + HEIGTH_IMG))
+			Game_State = choose_img;
 	default:
 		break;
 	}
@@ -256,6 +271,9 @@ void Tile::Draw()
 	case game:
 		Draw_Game();
 		break;
+	case win:
+		Draw_Win();
+		break;
 	default:
 		break;
 	}
@@ -301,7 +319,12 @@ void Tile::Draw_Start()
 
 	string str = "Choose image";
 	TTF_Font* font = TTF_OpenFont("19440.ttf", 100);
-	SDL_Surface* text = TTF_RenderText_Solid(font, str.c_str(), col);
+	if (font == nullptr)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "TTF Error", SDL_GetError(), window);
+		exit(1);
+	}
+	SDL_Surface* text = TTF_RenderText_Solid(font, str.c_str(), color_text);
 	SDL_Texture* TX_text = SDL_CreateTextureFromSurface(renderer, text);
 	SDL_Rect rect_text = { 600, 400, 400, 100 };
 	SDL_RenderCopy(renderer, TX_text, NULL, &rect_text);
@@ -331,7 +354,12 @@ void Tile::Draw_Cels()
 	}
 	string str = "Choose size cells";
 	TTF_Font* font = TTF_OpenFont("19440.ttf", 100);
-	SDL_Surface* text = TTF_RenderText_Solid(font, str.c_str(), col);
+	if (font == nullptr)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "TTF Error", SDL_GetError(), window);
+		exit(1);
+	}
+	SDL_Surface* text = TTF_RenderText_Solid(font, str.c_str(), color_text);
 	SDL_Texture* TX_text = SDL_CreateTextureFromSurface(renderer, text);
 	SDL_Rect rect_text = { 545, 100, 510, 90 };
 
@@ -365,5 +393,36 @@ void Tile::Draw_Game()
 			SDL_RenderCopy(renderer, clip[i][j], NULL, &rect);
 		}
 	}
+}
+
+void Tile::Draw_Win()
+{
+	string str = "Complited";
+	string str_NG = "New Game";
+	TTF_Font* font = TTF_OpenFont("19440.ttf", 500);
+
+	SDL_Surface* text = TTF_RenderText_Solid(font, str.c_str(), color_text);
+	SDL_Texture* TX_text = SDL_CreateTextureFromSurface(renderer, text);
+	if (font == nullptr)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "TTF Error", SDL_GetError(), window);
+		exit(1);
+	}
+	SDL_Surface* text_NG = TTF_RenderText_Solid(font, str_NG.c_str(), color_text);
+	SDL_Texture* TX_text_NG = SDL_CreateTextureFromSurface(renderer, text_NG);
+
+	SDL_Rect rect = { MARGIN_LEFT, MARGIN_TOP, WIDTH_IMG, HEIGTH_IMG };
+	SDL_Rect icon_rect = { WIDTH - MARGIN_LEFT - WIDTH_ICON, MARGIN_TOP, WIDTH_ICON, HEIGTH_ICON };
+	SDL_Rect rect_text = { 0, 0, WIDTH, MARGIN_TOP };
+	SDL_Rect rect_text_NG = { WIDTH - MARGIN_LEFT - WIDTH_ICON, MARGIN_TOP + HEIGTH_IMG - HEIGTH_ICON / 2, WIDTH_ICON, HEIGTH_ICON / 2 };
+	SDL_RenderCopy(renderer, Target_IMG, NULL, &rect);
+	SDL_RenderCopy(renderer, Target_IMG, NULL, &icon_rect);
+	SDL_RenderCopy(renderer, TX_text, NULL, &rect_text);
+	SDL_RenderCopy(renderer, TX_text_NG, NULL, &rect_text_NG);
+
+	SDL_FreeSurface(text);
+	SDL_DestroyTexture(TX_text);
+	SDL_FreeSurface(text_NG);
+	SDL_DestroyTexture(TX_text_NG);
 }
 

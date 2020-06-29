@@ -37,7 +37,7 @@ class Tile
 private:
 	State Game_State;
 	SDL_Window* window;
-	SDL_Color col;
+	SDL_Color color_text;
 	SDL_Rect window_rect;
 	SDL_Renderer* renderer;
 	SDL_Texture* background;
@@ -61,6 +61,7 @@ private:
 	void Draw_Start();
 	void Draw_Cels();
 	void Draw_Game();
+	void Draw_Win();
 public:
 	Tile();
 	~Tile();
